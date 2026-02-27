@@ -1,68 +1,94 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import Loader from "@/app/components/Loader";
+import { getProduct } from "@/app/services/products.api";
 import Image from "next/image";
+import Link from "next/link";
+import Quantity from "@/app/components/Quantity";
 
 export default function ProductPage() {
+  const params = useParams();
+  const id = params.id as string;
+
+  const {
+    data: product,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["product", id],
+    queryFn: () => getProduct(id),
+    enabled: !!id,
+  });
+
+  if (isLoading) return <Loader />;
+  if (isError)
+    return (
+      <div className="mt-12 flex flex-col items-center justify-center">
+        <span className="text-3xl font-semibold font-mono">
+          Error Fetching Products
+        </span>
+      </div>
+    );
+
   return (
-    <section className="py-16">
-      <div className="container mx-auto grid gap-y-10 gap-x-6 items-center md:grid-cols-2 grid-cols-1">
-        {/* Product Image */}
-        <div className="h-full w-full max-h-120 border border-slate-200 rounded-lg flex items-center justify-center">
+    <section className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:max-w-7xl lg:px-8 ">
+      <Link href="/product">
+        &#11013;
+        <span className="hover:underline">Back to Products</span>
+      </Link>
+
+      <div className="container my-2 mx-auto grid gap-y-10 gap-x-6 items-center md:grid-cols-2 grid-cols-1">
+        <div className="relative overflow-hidden w-full h-full border border-slate-200 rounded-lg flex items-center justify-center">
           <Image
-            src="https://v3.material-tailwind.com/coat-1.png"
-            alt="Pink Blouse"
-            width={400}
-            height={500}
-            className="object-contain h-full w-auto"
+            src={product?.image ?? ""}
+            alt={product?.title ?? ""}
+            fill
+            loading="eager"
+            className="object-contain aspect-square p-5 bg-gray-200 lg:aspect-auto lg:h-80"
           />
         </div>
 
-        {/* Product Details */}
         <div className="md:p-2">
-          <h4 className="font-bold text-xl md:text-2xl lg:text-3xl text-slate-800 dark:text-white">
-            Pink Blouse
+          <h4 className="font-bold text-xl md:text-2xl lg:text-3xl text-slate-800 ">
+            {product?.title}
           </h4>
 
           <h6 className="font-bold text-base md:text-lg lg:text-xl text-slate-800 my-4">
-            $1,490
+            {product?.price} EGP
           </h6>
 
-          <p className="text-base text-slate-600">
-            A stylish and elegant pink blouse made from premium materials.
-            Perfect for casual and semi-formal occasions.
-          </p>
+          <p className="text-base text-slate-600">{product?.description}</p>
 
-          {/* Rating */}
           <div className="flex items-center gap-2 my-8">
             <div className="flex text-amber-500">
-              {[1, 2, 3, 4].map((star) => (
-                <StarIcon key={star} filled />
+              {Array.from({
+                length: Math.ceil(product?.rating?.rate ?? 0),
+              }).map((_, i) => (
+                <StarIcon key={`full-${i}`} filled />
               ))}
-              <StarIcon />
+
+              {Array.from({
+                length: 5 - +Math.ceil(product?.rating?.rate ?? 0),
+              }).map((_, i) => (
+                <StarIcon key={`empty-${i}`} />
+              ))}
             </div>
 
             <p className="text-base font-semibold text-slate-600">
-              100 Reviews
+              {product?.rating.count} Reviews
             </p>
           </div>
 
-          {/* Colors */}
-          <h6 className="font-bold text-base md:text-lg lg:text-xl text-slate-800 dark:text-white my-4">
-            Color
+          <h6 className="font-bold text-base md:text-lg lg:text-xl text-slate-800 capitalize">
+            {product?.category}
           </h6>
 
-          <div className="flex gap-2">
-            <div className="h-5 w-5 bg-slate-950 rounded cursor-pointer"></div>
-            <div className="h-5 w-5 bg-white rounded border border-slate-200 cursor-pointer"></div>
-            <div className="h-5 w-5 bg-slate-200 rounded border border-slate-200 cursor-pointer"></div>
-          </div>
-
-          {/* Buttons */}
-          <div className="mt-6 flex items-center gap-2">
+          <div className="mt-6 flex flex-col lg:flex-row items-center gap-2">
+            <Quantity />
             <button className="py-2 px-4 rounded-md bg-slate-800 text-white hover:bg-slate-700 w-full max-w-60">
               Add to Cart
-            </button>
-
-            <button className="min-w-9.5 min-h-9.5 rounded-md border border-red-500 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center">
-              ❤
             </button>
           </div>
         </div>
