@@ -1,4 +1,4 @@
-const API_URL = "https://fakestoreapi.com";
+export const API_URL = "https://fakestoreapi.com";
 
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${API_URL}/products`);

@@ -3,10 +3,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { createProduct } from "@/app/services/products.api";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function CreateProductPage() {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const [categories, setCategories] = useState<string[]>([]);
@@ -89,6 +88,10 @@ export default function CreateProductPage() {
 
   return (
     <section className="py-16 max-w-2xl mx-auto">
+      <Link href="/product">
+        &#11013;
+        <span className="hover:underline">Back to Products</span>
+      </Link>
       <h1 className="text-2xl font-bold mb-6">Create Product</h1>
 
       {success && (

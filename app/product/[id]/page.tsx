@@ -1,36 +1,15 @@
-"use client";
-
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
-import Loader from "@/app/components/Loader";
 import { getProduct } from "@/app/services/products.api";
 import Image from "next/image";
 import Link from "next/link";
 import Quantity from "@/app/components/Quantity";
 
-export default function ProductPage() {
-  const params = useParams();
-  const id = params.id as string;
+interface IProps {
+  params: { id: string };
+}
+export default async function ProductPage({ params }: IProps) {
+  const { id } = await params;
 
-  const {
-    data: product,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["product", id],
-    queryFn: () => getProduct(id),
-    enabled: !!id,
-  });
-
-  if (isLoading) return <Loader />;
-  if (isError)
-    return (
-      <div className="mt-12 flex flex-col items-center justify-center">
-        <span className="text-3xl font-semibold font-mono">
-          Error Fetching Products
-        </span>
-      </div>
-    );
+  const product = await getProduct(id);
 
   return (
     <section className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:max-w-7xl lg:px-8 ">
@@ -42,8 +21,8 @@ export default function ProductPage() {
       <div className="container my-2 mx-auto grid gap-y-10 gap-x-6 items-center md:grid-cols-2 grid-cols-1">
         <div className="relative overflow-hidden w-full h-full border border-slate-200 rounded-lg flex items-center justify-center">
           <Image
-            src={product?.image ?? ""}
-            alt={product?.title ?? ""}
+            src={product?.image}
+            alt={product?.title}
             fill
             loading="eager"
             className="object-contain aspect-square p-5 bg-gray-200 lg:aspect-auto lg:h-80"
