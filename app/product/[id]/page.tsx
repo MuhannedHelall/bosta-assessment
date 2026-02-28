@@ -1,22 +1,36 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import Loader from "@/app/components/Loader";
 import { getProduct } from "@/app/services/products.api";
 import Image from "next/image";
 import Link from "next/link";
 import Quantity from "@/app/components/Quantity";
 
-interface IProps {
-  params: { id: string };
-}
-export default async function ProductPage({ params }: IProps) {
-  const { id } = await params;
+export default async function ProductPage() {
+  const params = useParams();
+  const id = params.id as string;
 
-  let product: Partial<Product> = {};
+  const {
+    data: product,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["product", id],
+    queryFn: () => getProduct(id),
+    enabled: !!id,
+  });
 
-  try {
-    product = await getProduct(id);
-  } catch (error) {
-    console.error("Failed to fetch product:", error);
-    product = {};
-  }
+  if (isLoading) return <Loader />;
+  if (isError)
+    return (
+      <div className="mt-12 flex flex-col items-center justify-center">
+        <span className="text-3xl font-semibold font-mono">
+          Error Fetching Products
+        </span>
+      </div>
+    );
 
   return (
     <section className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:max-w-7xl lg:px-8 ">
