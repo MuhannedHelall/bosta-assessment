@@ -1,17 +1,21 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Loader from "@/app/components/Loader";
 import { getProduct } from "@/app/services/products.api";
 import Image from "next/image";
 import Link from "next/link";
 import Quantity from "@/app/components/Quantity";
+import { useAuthStore } from "@/app/stores/auth.store";
+import { useEffect } from "react";
 
-export default async function ProductPage() {
+export default function ProductPage() {
+  const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
 
+  const id = params.id as string;
+  const { token } = useAuthStore();
   const {
     data: product,
     isLoading,
@@ -22,6 +26,12 @@ export default async function ProductPage() {
     enabled: !!id,
   });
 
+  useEffect(() => {
+    if (!token) {
+      router.replace("/");
+    }
+  }, [token, router]);
+
   if (isLoading) return <Loader />;
   if (isError)
     return (
@@ -31,7 +41,6 @@ export default async function ProductPage() {
         </span>
       </div>
     );
-
   return (
     <section className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:max-w-7xl lg:px-8 ">
       <Link href="/product">

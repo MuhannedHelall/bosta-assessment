@@ -4,9 +4,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { createProduct } from "@/app/services/products.api";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/app/stores/auth.store";
 
 export default function CreateProductPage() {
   const queryClient = useQueryClient();
+  const router = useRouter();
+
+  const { token } = useAuthStore();
 
   const [categories, setCategories] = useState<string[]>([]);
   const [formData, setFormData] = useState<CreateProductDTO>({
@@ -85,6 +90,12 @@ export default function CreateProductPage() {
     }
     getCategories();
   }, []);
+
+  useEffect(() => {
+    if (!token) {
+      router.replace("/");
+    }
+  }, [token, router]);
 
   return (
     <section className="py-16 max-w-2xl mx-auto">
