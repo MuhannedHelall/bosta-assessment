@@ -2,7 +2,14 @@ import ProductList from "../components/ProductList";
 import { getProducts } from "../services/products.api";
 
 export default async function Products() {
-  const products = await getProducts();
+  let products: Product[] = [];
+
+  try {
+    products = await getProducts();
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    products = [];
+  }
 
   return (
     <div className="bg-white">

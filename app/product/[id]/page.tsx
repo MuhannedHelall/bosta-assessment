@@ -9,7 +9,14 @@ interface IProps {
 export default async function ProductPage({ params }: IProps) {
   const { id } = await params;
 
-  const product = await getProduct(id);
+  let product: Partial<Product> = {};
+
+  try {
+    product = await getProduct(id);
+  } catch (error) {
+    console.error("Failed to fetch product:", error);
+    product = {};
+  }
 
   return (
     <section className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:max-w-7xl lg:px-8 ">
@@ -21,8 +28,8 @@ export default async function ProductPage({ params }: IProps) {
       <div className="container my-2 mx-auto grid gap-y-10 gap-x-6 items-center md:grid-cols-2 grid-cols-1">
         <div className="relative overflow-hidden w-full h-full border border-slate-200 rounded-lg flex items-center justify-center">
           <Image
-            src={product?.image}
-            alt={product?.title}
+            src={product?.image ?? ""}
+            alt={product?.title ?? ""}
             fill
             loading="eager"
             className="object-contain aspect-square p-5 bg-gray-200 lg:aspect-auto lg:h-80"
@@ -56,7 +63,7 @@ export default async function ProductPage({ params }: IProps) {
             </div>
 
             <p className="text-base font-semibold text-slate-600">
-              {product?.rating.count} Reviews
+              {product?.rating?.count} Reviews
             </p>
           </div>
 
